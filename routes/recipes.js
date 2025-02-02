@@ -1,10 +1,9 @@
 const express = require("express");
-const authMiddleware = require("../middleware/authMiddleware");
 const User = require("../models/user.js");
 
 const router = express.Router();
 
-router.post("/save", authMiddleware, async (req, res) => {
+router.post("/save", async (req, res) => {
   try {
     const { recipeName, ingredients, instructions, calories, carbs, protein, fat } = req.body;
 
@@ -38,7 +37,7 @@ router.post("/save", authMiddleware, async (req, res) => {
   }
 });
 
-router.get("/saved", authMiddleware, async (req, res) => {
+router.get("/saved", async (req, res) => {
     try {
       const user = await User.findById(req.session.user.id).select("savedRecipes");
       if (!user) return res.status(404).json({ message: "User not found" });
@@ -51,7 +50,7 @@ router.get("/saved", authMiddleware, async (req, res) => {
     }
   });
 
-router.delete("/saved/:recipeId", authMiddleware, async (req, res) => {
+router.delete("/saved/:recipeId", async (req, res) => {
   try {
     const user = await User.findById(req.session.user.id);
     if (!user) return res.status(404).json({ message: "User not found" });

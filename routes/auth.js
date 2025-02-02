@@ -1,7 +1,6 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const User = require("../models/user.js");
-const authMiddleware = require("../middleware/authMiddleware.js");
 
 const router = express.Router();
 
@@ -52,7 +51,7 @@ router.post("/logout", (req, res) => {
 });
 
 // Protected Route - Get User Profile
-router.get("/profile", authMiddleware, async (req, res) => {
+router.get("/profile", async (req, res) => {
   try {
     const user = await User.findById(req.session.user.id).select("-password");
     if (!user) return res.status(404).json({ message: "User not found" });
@@ -63,7 +62,7 @@ router.get("/profile", authMiddleware, async (req, res) => {
   }
 });
 
-router.post("/personalized", authMiddleware, async (req, res) => {
+router.post("/personalized", async (req, res) => {
   try {
     const { dietType, allergies, restrictions, goal } = req.body;
 
@@ -94,7 +93,7 @@ router.post("/personalized", authMiddleware, async (req, res) => {
   }
 });
 
-router.get("/preferences", authMiddleware, async (req, res) => {
+router.get("/preferences", async (req, res) => {
   try {
     const user = await User.findById(req.session.user.id).select("allergies restrictions dietType goal");
     if (!user) return res.status(404).json({ message: "User not found" });
