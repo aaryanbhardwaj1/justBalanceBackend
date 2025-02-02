@@ -56,7 +56,7 @@ router.post("/logout", (req, res) => {
 // Protected Route - Get User Profile
 router.get("/profile", async (req, res) => {
   try {
-    const user = await User.findById(req.session.user.id).select("-password");
+    const user = await User.findById(req.session.user._id).select("-password");
     if (!user) return res.status(404).json({ message: "User not found" });
 
     res.json(user);
