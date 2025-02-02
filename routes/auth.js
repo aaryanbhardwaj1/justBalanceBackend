@@ -66,10 +66,10 @@ router.post("/personalized", async (req, res) => {
   try {
     const { dietType, allergies, restrictions, goal } = req.body;
 
-    // // Ensure all required fields are provided
-    // if (!dietType || !allergies || !restrictions || !goal) {
-    //   return res.status(400).json({ message: "All personalization fields are required" });
-    // }
+     // Ensure all required fields are provided
+     if (!dietType || !allergies || !restrictions || !goal) {
+       return res.status(400).json({ message: "All personalization fields are required" });
+    }
 
     const user = await User.findById(req.session.user.id);
     if (!user) return res.status(404).json({ message: "User not found" });
