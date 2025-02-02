@@ -49,96 +49,26 @@ router.post("/logout", (req, res) => {
   res.json({ message: "Logged out successfully" });
 });
 
-// Protected Route - Get User Profile
-router.get("/profile", async (req, res) => {
+router.post("/oneline", async (req, res) => {
   try {
-    const user = await User.findById(req.session.user.id).select("-password");
-    if (!user) return res.status(404).json({ message: "User not found" });
+    const { email, password } = req.body;
 
-    res.json(user);
-  } catch (error) {
-    res.status(500).json({ message: "Server error" });
-  }
-});
+    const user = await User.findOne({ email });
+    if (!user) return res.status(400).json({ message: "Invalid credentials" });
 
-router.post("/personalized", async (req, res) => {
-  try {
-    const { dietType, allergies, restrictions, goal } = req.body;
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
 
-    // Ensure all required fields are provided
-    if (!dietType || !allergies || !restrictions || !goal) {
-      return res.status(400).json({ message: "All personalization fields are required" });
-    }
-
-    const user = await User.findById(req.session.user.id);
-    if (!user) return res.status(404).json({ message: "User not found" });
-
-    // Create a new recipe object
-    const newPersonalization = {
-      dietType,
-      allergies,
-      restrictions,
-      goal,
+    // Save user session
+    req.session.user = {
+      id: user._id,
+      email: user.email,
     };
 
-    // Add to user's saved recipes
-    user.savedPersonalization.push(newPersonalization);
-    await user.save();
-
-    res.status(201).json({ message: "Personalizations saved successfully", savedPersonalization: user.savedPersonalization });
+    res.json({ message: "Logged in successfully", user: req.session.user });
   } catch (error) {
-    console.error("Personalizations Save Error:", error);
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ message: error.message });
   }
 });
-
-router.get("/preferences", async (req, res) => {
-  try {
-    const user = await User.findById(req.session.user.id).select("allergies restrictions dietType goal");
-    if (!user) return res.status(404).json({ message: "User not found" });
-
-    res.json({
-      allergies: user.allergies,
-      restrictions: user.restrictions,
-      dietType: user.dietType,
-      goal: user.goal
-    });
-  } catch (error) {
-    console.error("Preferences Fetch Error:", error);
-    res.status(500).json({ message: "Server error" });
-  }
-});
-
-router.post("/main-unction", async (req, res) => {
-  try {
-    const { dietType, allergies, restrictions, goal } = req.body;
-
-    // Ensure all required fields are provided
-    if (!dietType || !allergies || !restrictions || !goal) {
-      return res.status(400).json({ message: "All personalization fields are required" });
-    }
-
-    const user = await User.findById(req.session.user.id);
-    if (!user) return res.status(404).json({ message: "User not found" });
-
-    // Create a new recipe object
-    const newPersonalization = {
-      dietType,
-      allergies,
-      restrictions,
-      goal,
-    };
-
-    // Add to user's saved recipes
-    user.savedPersonalization.push(newPersonalization);
-    await user.save();
-
-    res.status(201).json({ message: "Personalizations saved successfully", savedPersonalization: user.savedPersonalization });
-  } catch (error) {
-    console.error("Personalizations Save Error:", error);
-    res.status(500).json({ message: "Internal server error" });
-  }
-});
-
 
 module.exports = router;
