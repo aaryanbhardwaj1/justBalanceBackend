@@ -64,4 +64,22 @@ router.get("/profile", authMiddleware, async (req, res) => {
   }
 });
 
+router.get("/preferences", authMiddleware, async (req, res) => {
+  try {
+    const user = await User.findById(req.session.user.id).select("allergies restrictions dietType goal");
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    res.json({
+      allergies: user.allergies,
+      restrictions: user.restrictions,
+      dietType: user.dietType,
+      goal: user.goal
+    });
+  } catch (error) {
+    console.error("Preferences Fetch Error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+
 module.exports = router;

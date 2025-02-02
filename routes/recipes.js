@@ -44,6 +44,7 @@ router.get("/saved", authMiddleware, async (req, res) => {
       if (!user) return res.status(404).json({ message: "User not found" });
   
       res.json({ savedRecipes: user.savedRecipes });
+      
     } catch (error) {
       console.error("Fetch Saved Recipes Error:", error);
       res.status(500).json({ message: "Internal server error" });
