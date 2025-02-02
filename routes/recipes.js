@@ -6,7 +6,7 @@ const router = express.Router();
 
 router.post("/save", authMiddleware, async (req, res) => {
   try {
-    const { recipeName, ingredients, instructions, calories, carbs, protein, fat, imageUrl } = req.body;
+    const { recipeName, ingredients, instructions, calories, carbs, protein, fat } = req.body;
 
     // Ensure all required fields are provided
     if (!recipeName || !ingredients || !instructions || calories == null || carbs == null || protein == null || fat == null) {
@@ -44,7 +44,7 @@ router.get("/saved", authMiddleware, async (req, res) => {
       if (!user) return res.status(404).json({ message: "User not found" });
   
       res.json({ savedRecipes: user.savedRecipes });
-      
+
     } catch (error) {
       console.error("Fetch Saved Recipes Error:", error);
       res.status(500).json({ message: "Internal server error" });
