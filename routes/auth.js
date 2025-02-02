@@ -49,7 +49,6 @@ router.post("/logout", (req, res) => {
   res.json({ message: "Logged out successfully" });
 });
 
-import express from "express";
 import { OpenAI } from "openai";
 import dotenv from "dotenv";
 
