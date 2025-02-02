@@ -9,11 +9,16 @@ router.post("/register", async (req, res) => {
   try {
     const { firstName, lastName, email, password } = req.body;
 
-    let user = await User.findOne({ email });
-    if (user) return res.status(400).json({ message: "User already exists" });
+    let foundUser = await User.findOne({ email });
+    if (foundUser) return res.status(400).json({ message: "User already exists" });
 
-    user = new User({ firstName, lastName, email, password });
-    await user.save();
+    freshUser = new User({ firstName, lastName, email, password });
+    await freshUser.save();
+
+    req.session.user = {
+      id: freshUser._id,
+      email: freshUser.email,
+    };
 
     res.status(201).json({ message: "User registered successfully" });
   } catch (error) {
@@ -77,10 +82,6 @@ router.post("/personalized", async (req, res) => {
        console.error('This is where ht error is happening')
     }
 
-    console.log(req)
-    console.log(req.session)
-    console.log(req.session.user)
-    console.log(req.session.user.id)
 
 
     const user = await User.findById(req.session.user.id);
