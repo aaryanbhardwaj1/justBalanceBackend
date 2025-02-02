@@ -1,28 +1,3 @@
-/*
-const mongoose = require("mongoose");
-const bcrypt = require ("bcryptjs");
-
-const UserSchema = new mongoose.Schema(
-    {
-        name: { type: String, required: true },
-        email: { type: String, required: true, unique: true },
-        password: { type: String, required: true},
-    },
-    { timestamps: true}
-);
-
-//Hash the password before saving to DB
-UserSchema.pre("save", async function (next) {
-    if (!this.isModified("password")) return next();
-    const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password, salt);
-    next();
-});
-
-const User = mongoose.model("User", UserSchema);
-module.exports = User;
-*/
-
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 
@@ -39,7 +14,7 @@ const RecipeSchema = new mongoose.Schema({
     carbs: { type: Number, required: true },
     protein: { type: Number, required: true },
     fat: { type: Number, required: true },
-  }, { timestamps: true });
+}, { timestamps: true });
 
 const UserSchema = new mongoose.Schema(
   {
@@ -55,7 +30,17 @@ const UserSchema = new mongoose.Schema(
     goal: [{ type: String, default: [] }], 
         
     // Array of saved recipes
-    savedRecipes: [RecipeSchema]
+    savedRecipes: [RecipeSchema],
+
+    // New array that includes dietType, allergies, restrictions, and goal
+    savedPersonalization: [
+      {
+        dietType: { type: String, enum: ["balanced", "keto", "vegan", "paleo", "vegetarian", "carnivore"], required: true },
+        allergies: [{ type: String, default: [] }],
+        restrictions: [{ type: String, default: [] }],
+        goal: { type: String, enum: ["cut", "bulk", "maintain"], required: true }
+      }
+    ]
   },
   { timestamps: true }
 );

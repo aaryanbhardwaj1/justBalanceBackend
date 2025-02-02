@@ -63,6 +63,37 @@ router.get("/profile", authMiddleware, async (req, res) => {
   }
 });
 
+router.post("/personalized", authMiddleware, async (req, res) => {
+  try {
+    const { dietType, allergies, restrictions, goal } = req.body;
+
+    // Ensure all required fields are provided
+    if (dietType == null || allergies == null || restrictions == null || goal == null) {
+      return res.status(400).json({ message: "All personalization fields are required" });
+    }
+
+    const user = await User.findById(req.session.user.id);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    // Create a new recipe object
+    const newPersonalization = {
+      dietType,
+      allergies,
+      restrictions,
+      goal,
+    };
+
+    // Add to user's saved recipes
+    user.savedPersonalization.$poppush(newPersonalization);
+    await user.save();
+
+    res.status(201).json({ message: "Personalizations saved successfully", savedRecipes: user.savedRecipes });
+  } catch (error) {
+    console.error("Personalizations Save Error:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
 router.get("/preferences", authMiddleware, async (req, res) => {
   try {
     const user = await User.findById(req.session.user.id).select("allergies restrictions dietType goal");
