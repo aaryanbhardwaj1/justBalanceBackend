@@ -3,7 +3,7 @@ const bcrypt = require("bcryptjs");
 const User = require("../models/user.js");
 
 const router = express.Router();
-router.post("/register", async (req, res) => {
+router.post("/register", async (req, res, next) => {
   try {
     const { firstName, lastName, email, password } = req.body;
 
@@ -13,13 +13,9 @@ router.post("/register", async (req, res) => {
     const freshUser = new User({ firstName, lastName, email, password });
     await freshUser.save();
 
-    // Save user session with ID and email
-    req.session.user = {
-      id: freshUser._id,
-      email: freshUser.email,
-    };
-
-    res.status(201).json({ message: "User registered & logged in successfully", user: req.session.user });
+    // Attach login parameters to request body and call login route
+    req.body = { email, password };
+    next(); // Calls the next matching route (in this case, /login)
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
