@@ -3,19 +3,19 @@ const bcrypt = require("bcryptjs");
 const User = require("../models/user.js");
 
 const router = express.Router();
-router.post("/register", async (req, res, next) => {
+
+// Register a new user
+router.post("/register", async (req, res) => {
   try {
     const { firstName, lastName, email, password } = req.body;
 
-    let foundUser = await User.findOne({ email });
-    if (foundUser) return res.status(400).json({ message: "User already exists" });
+    let user = await User.findOne({ email });
+    if (user) return res.status(400).json({ message: "User already exists" });
 
-    const freshUser = new User({ firstName, lastName, email, password });
-    await freshUser.save();
+    user = new User({ firstName, lastName, email, password });
+    await user.save();
 
-    // Attach login parameters to request body and call login route
-    req.body = { email, password };
-    next(); // Calls the next matching route (in this case, /login)
+    res.status(201).json({ message: "User registered successfully" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -29,9 +29,10 @@ router.post("/login", async (req, res) => {
     const user = await User.findOne({ email });
     if (!user) return res.status(400).json({ message: "Invalid credentials" });
 
-    if (user.password !== password) return res.status(400).json({ message: "Invalid credentials" });
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
 
-    // Save user session with ID and email
+    // Save user session
     req.session.user = {
       id: user._id,
       email: user.email,
@@ -52,7 +53,7 @@ router.post("/logout", (req, res) => {
 // Protected Route - Get User Profile
 router.get("/profile", async (req, res) => {
   try {
-    const user = await User.findById(req.session.user._id).select("-password");
+    const user = await User.findById(req.session.user.id).select("-password");
     if (!user) return res.status(404).json({ message: "User not found" });
 
     res.json(user);
@@ -63,20 +64,12 @@ router.get("/profile", async (req, res) => {
 
 router.post("/personalized", async (req, res) => {
   try {
-    const { dietType, allergies, diet, goals } = req.body;
+    const { dietType, allergies, restrictions, goal } = req.body;
 
-     // Ensure all required fields are provided
-     console.log(dietType)
-     console.log(allergies)
-     console.log(diet)
-     console.log(goals)
-     console.log(req.body)
-     if (!dietType || !allergies || !diet || !goals) {
-       return res.status(400).json({ message: "All personalization fields are required" });
-       console.error('This is where ht error is happening')
+    // Ensure all required fields are provided
+    if (!dietType || !allergies || !restrictions || !goal) {
+      return res.status(400).json({ message: "All personalization fields are required" });
     }
-
-
 
     const user = await User.findById(req.session.user.id);
     if (!user) return res.status(404).json({ message: "User not found" });
