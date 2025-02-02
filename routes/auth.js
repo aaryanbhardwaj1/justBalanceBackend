@@ -3,8 +3,6 @@ const bcrypt = require("bcryptjs");
 const User = require("../models/user.js");
 
 const router = express.Router();
-
-// Register a new user
 router.post("/register", async (req, res) => {
   try {
     const { firstName, lastName, email, password } = req.body;
@@ -12,15 +10,16 @@ router.post("/register", async (req, res) => {
     let foundUser = await User.findOne({ email });
     if (foundUser) return res.status(400).json({ message: "User already exists" });
 
-    freshUser = new User({ firstName, lastName, email, password });
+    const freshUser = new User({ firstName, lastName, email, password });
     await freshUser.save();
 
+    // Save user session with ID and email
     req.session.user = {
       id: freshUser._id,
       email: freshUser.email,
     };
 
-    res.status(201).json({ message: "User registered successfully" });
+    res.status(201).json({ message: "User registered & logged in successfully", user: req.session.user });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -34,10 +33,9 @@ router.post("/login", async (req, res) => {
     const user = await User.findOne({ email });
     if (!user) return res.status(400).json({ message: "Invalid credentials" });
 
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
+    if (user.password !== password) return res.status(400).json({ message: "Invalid credentials" });
 
-    // Save user session
+    // Save user session with ID and email
     req.session.user = {
       id: user._id,
       email: user.email,
