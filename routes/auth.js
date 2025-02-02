@@ -83,7 +83,5 @@ router.post("/oneline", async (req, res) => {
   }
 });
 
-export default router;
-
 
 module.exports = router;
