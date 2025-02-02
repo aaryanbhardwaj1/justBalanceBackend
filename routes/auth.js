@@ -1,7 +1,13 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const User = require("../models/user.js");
+const { OpenAI } = require("openai"); // Import OpenAI SDK
 const router = express.Router();
+
+// Initialize OpenAI API
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY, // Store API key in .env
+});
 
 // Register a new user
 router.post("/register", async (req, res) => {
@@ -49,14 +55,7 @@ router.post("/logout", (req, res) => {
   res.json({ message: "Logged out successfully" });
 });
 
-
-dotenv.config();
-
-// Initialize OpenAI API
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY, // Set your OpenAI API Key in .env
-});
-
+// Analyze One-Line String with ChatGPT
 router.post("/oneline", async (req, res) => {
   try {
     const { oneline } = req.body;
@@ -83,5 +82,5 @@ router.post("/oneline", async (req, res) => {
   }
 });
 
-
 module.exports = router;
+
