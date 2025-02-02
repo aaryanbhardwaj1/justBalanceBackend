@@ -83,7 +83,7 @@ router.post("/personalized", async (req, res) => {
     };
 
     // Add to user's saved recipes
-    user.savedPersonalization.$poppush(newPersonalization);
+    user.savedPersonalization.push(newPersonalization);
     await user.save();
 
     res.status(201).json({ message: "Personalizations saved successfully", savedPersonalization: user.savedPersonalization });
