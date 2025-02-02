@@ -77,6 +77,12 @@ router.post("/personalized", async (req, res) => {
        console.error('This is where ht error is happening')
     }
 
+    console.log(req)
+    console.log(req.session)
+    console.log(req.session.user)
+    console.log(req.session.user.id)
+
+
     const user = await User.findById(req.session.user.id);
     if (!user) return res.status(404).json({ message: "User not found" });
 
