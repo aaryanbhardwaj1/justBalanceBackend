@@ -64,15 +64,15 @@ router.get("/profile", async (req, res) => {
 
 router.post("/personalized", async (req, res) => {
   try {
-    const { dietType, allergies, restrictions, goal } = req.body;
+    const { dietType, allergies, diet, goals } = req.body;
 
      // Ensure all required fields are provided
      console.log(dietType)
      console.log(allergies)
-     console.log(restrictions)
-     console.log(goal)
+     console.log(diet)
+     console.log(goals)
      console.log(req.body)
-     if (!dietType || !allergies || !restrictions || !goal) {
+     if (!dietType || !allergies || !diet || !goals) {
        return res.status(400).json({ message: "All personalization fields are required" });
        console.error('This is where ht error is happening')
     }
