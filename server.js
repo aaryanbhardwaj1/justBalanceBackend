@@ -34,7 +34,6 @@ const cors = require("cors");
 const session = require("express-session");
 require("dotenv").config();
 
-const authRoutes = require("./routes/auth.js");
 
 const app = express();
 app.use(express.json());
@@ -51,7 +50,15 @@ app.use(
 );
 
 // Routes
-app.use("/api/auth", authRoutes);
+
+app.get("/", (req, res) => {
+  res.json({ message: "Welcome to the API!" });
+});
+
+// Sample API endpoint
+app.get("/api/data", (req, res) => {
+  res.json({ success: true, data: ["item1", "item2", "item3"] });
+});
 
 // Connect to Database
 connectDB();
