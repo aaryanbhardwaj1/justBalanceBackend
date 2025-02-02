@@ -68,7 +68,7 @@ router.post("/personalized", authMiddleware, async (req, res) => {
     const { dietType, allergies, restrictions, goal } = req.body;
 
     // Ensure all required fields are provided
-    if (dietType == null || allergies == null || restrictions == null || goal == null) {
+    if (!dietType || !allergies || !restrictions || !goal) {
       return res.status(400).json({ message: "All personalization fields are required" });
     }
 
@@ -84,10 +84,10 @@ router.post("/personalized", authMiddleware, async (req, res) => {
     };
 
     // Add to user's saved recipes
-    user.savedPersonalization.$poppush(newPersonalization);
+    user.savedPersonalization.push(newPersonalization);
     await user.save();
 
-    res.status(201).json({ message: "Personalizations saved successfully", savedRecipes: user.savedRecipes });
+    res.status(201).json({ message: "Personalizations saved successfully", savedPersonalization: user.savedPersonalization });
   } catch (error) {
     console.error("Personalizations Save Error:", error);
     res.status(500).json({ message: "Internal server error" });
