@@ -49,26 +49,44 @@ router.post("/logout", (req, res) => {
   res.json({ message: "Logged out successfully" });
 });
 
+import express from "express";
+import { OpenAI } from "openai";
+import dotenv from "dotenv";
+
+dotenv.config();
+
+// Initialize OpenAI API
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY, // Set your OpenAI API Key in .env
+});
+
 router.post("/oneline", async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { oneline } = req.body;
 
-    const user = await User.findOne({ email });
-    if (!user) return res.status(400).json({ message: "Invalid credentials" });
+    if (!oneline || typeof oneline !== "string") {
+      return res.status(400).json({ message: "Invalid input. Provide a one-line string." });
+    }
 
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
+    // Send the string to ChatGPT for analysis
+    const chatResponse = await openai.chat.completions.create({
+      model: "gpt-4-turbo",
+      messages: [
+        { role: "system", content: "You are an expert text analyzer. Analyze the given one-line text and provide insights." },
+        { role: "user", content: oneline },
+      ],
+    });
 
-    // Save user session
-    req.session.user = {
-      id: user._id,
-      email: user.email,
-    };
+    // Extract the AI response
+    const analysis = chatResponse.choices[0].message.content;
 
-    res.json({ message: "Logged in successfully", user: req.session.user });
+    res.json({ message: "Analysis successful", analysis });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: "Error processing request", error: error.message });
   }
 });
+
+export default router;
+
 
 module.exports = router;
