@@ -1,1 +1,1 @@
-require("./server"); // Import and start the server
+require("./server.js"); // Import and start the server

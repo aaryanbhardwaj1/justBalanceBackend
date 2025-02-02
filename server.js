@@ -1,3 +1,4 @@
+/*
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
@@ -24,4 +25,36 @@ app.get("/", (req, res) => {
 });
 
 const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+*/
+
+const express = require("express");
+const connectDB = require("./config/db.js");
+const cors = require("cors");
+const session = require("express-session");
+require("dotenv").config();
+
+const authRoutes = require("./routes/auth.js");
+
+const app = express();
+app.use(express.json());
+app.use(cors({ credentials: true, origin: "*" }));
+
+// Express session setup
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: false }, // Set to true if using HTTPS
+  })
+);
+
+// Routes
+app.use("/api/auth", authRoutes);
+
+// Connect to Database
+connectDB();
+
+const PORT = process.env.PORT || 5010;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
