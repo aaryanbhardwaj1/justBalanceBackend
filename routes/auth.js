@@ -15,11 +15,6 @@ router.post("/register", async (req, res) => {
     user = new User({ firstName, lastName, email, password });
     await user.save();
 
-    req.session.user = {
-      id: user._id,
-      email: user.email,
-    };
-
     res.status(201).json({ message: "User registered successfully" });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -88,7 +83,7 @@ router.post("/personalized", async (req, res) => {
     };
 
     // Add to user's saved recipes
-    user.savedPersonalization.push(newPersonalization);
+    user.savedPersonalization.$poppush(newPersonalization);
     await user.save();
 
     res.status(201).json({ message: "Personalizations saved successfully", savedPersonalization: user.savedPersonalization });
