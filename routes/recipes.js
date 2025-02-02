@@ -4,6 +4,9 @@ const User = require("../models/user.js");
 
 const router = express.Router();
 
+
+
+// Save the recipes
 router.post("/save", authMiddleware, async (req, res) => {
     try {
       const { recipeName, ingredients, instructions, calories, carbs, protein, fat } = req.body;
@@ -38,6 +41,7 @@ router.post("/save", authMiddleware, async (req, res) => {
     }
   });
 
+// Get Saved Recipes
 router.get("/saved", authMiddleware, async (req, res) => {
     try {
       const user = await User.findById(req.session.user.id).select("savedRecipes");
@@ -51,6 +55,7 @@ router.get("/saved", authMiddleware, async (req, res) => {
     }
   });
 
+// Delete Saved Recipe
 router.delete("/saved/:recipeId", authMiddleware, async (req, res) => {
   try {
     const user = await User.findById(req.session.user.id);
